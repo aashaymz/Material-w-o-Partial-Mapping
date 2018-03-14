@@ -34,28 +34,53 @@ namespace Material_w_o_Partial_Mapping
 
         public void ComputeBuyers(List<Buyer> buyers, int materialUnits)
         {
-            Console.WriteLine("\n\n" + System.Configuration.ConfigurationManager.AppSettings["tableHeader1"] 
-                + "\t" + System.Configuration.ConfigurationManager.AppSettings["tableHeader2"]);
-            foreach (Buyer buyer in buyers)
+            int totalMaterial = materialUnits;
+            bool Flag = false;
+            do
             {
-                if (materialUnits > 0)
+                Console.Clear();
+                Console.WriteLine("\n\n" + System.Configuration.ConfigurationManager.AppSettings["tableHeader1"]
+                + "\t" + System.Configuration.ConfigurationManager.AppSettings["tableHeader2"]);
+
+                Double totalProfit = new Double();
+                String lastBuyer = null;
+                Flag = false;
+                materialUnits = totalMaterial;
+                foreach (Buyer buyer in buyers)
                 {
-                    if (materialUnits - buyer.MaterialAmount >= 0)
+                    if (materialUnits > 0)
                     {
-                        Console.WriteLine(buyer.Name + "\t" + buyer.MaterialAmount);
+                        if (materialUnits - buyer.MaterialAmount >= 0)
+                        {
+                            Console.WriteLine(buyer.Name + "\t" + buyer.MaterialAmount);
+                            lastBuyer = buyer.Name;
+                            totalProfit = totalProfit + buyer.Price;
+                        }
+                        else
+                        {
+                            Flag = true;
+                            continue;
+                        }
+                        materialUnits = materialUnits - buyer.MaterialAmount;
                     }
                     else
                     {
-                        Console.WriteLine(buyer.Name + "\t" + materialUnits);
+                        break;
                     }
-                    materialUnits = materialUnits - buyer.MaterialAmount;
                 }
-                else
+                if (materialUnits > 0 && Flag == true)
                 {
-                    break;
+                    Buyer removeBuyer = buyers.Where(o => o.Name == lastBuyer).FirstOrDefault();
+                    if (removeBuyer != null)
+                    {
+                        buyers.Remove(removeBuyer);
+                    }
                 }
-            }
-            if (materialUnits > 0)
+                Console.WriteLine(System.Configuration.ConfigurationManager.AppSettings["totalProMsg"] + totalProfit);
+            } while (materialUnits > 0 && Flag == true);
+
+            
+            if (materialUnits >= 0)
             {
                 Console.WriteLine("\n" + System.Configuration.ConfigurationManager.AppSettings["matRemainMsg"] + materialUnits);
             }
